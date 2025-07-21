@@ -18,28 +18,30 @@
 
     .grid {
       display: flex;
+      flex-wrap: wrap;
       gap: 1rem;
-      overflow-x: auto;
+      justify-content: center;
       padding: 1rem 0;
     }
 
-    .year-column {
+    .year-column, .optativas-column {
       background: #ffffff;
       border-radius: 10px;
       padding: 1rem;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
       min-width: 260px;
+      max-width: 320px;
+      flex: 1;
       border-top: 4px solid #ffd54f;
     }
 
-    .year-column h2 {
+    .year-column h2, .optativas-column h2 {
       text-align: center;
       color: #1e3f66;
       margin-bottom: 1rem;
     }
 
     .subject {
-      background: #e1f5fe;
       margin: 0.5rem 0;
       padding: 0.6rem;
       border-radius: 6px;
@@ -47,18 +49,25 @@
       position: relative;
       transition: 0.2s ease;
       font-size: 0.95em;
+      background: #fff8c6; /* amarillo claro por defecto */
+      border-left: 6px solid #ffd54f;
+    }
+
+    .subject.aprobada {
+      background: #cbeeff; /* celeste para aprobadas */
       border-left: 6px solid #4fc3f7;
+    }
+
+    .subject.locked {
+      background: #f1f1f1;
+      color: #aaa;
+      cursor: not-allowed;
+      border-left: 6px solid #ccc;
     }
 
     .subject input[type="checkbox"] {
       margin-right: 0.5rem;
-    }
-
-    .subject.locked {
-      background: #f9f9f9;
-      color: #aaa;
-      cursor: not-allowed;
-      border-left: 6px solid #ccc;
+      cursor: pointer;
     }
 
     .subject.locked input {
@@ -66,7 +75,7 @@
     }
 
     .subject:hover:not(.locked) {
-      background: #b3e5fc;
+      background: #fff3a1;
     }
 
     .subject[title]:hover::after {
@@ -87,132 +96,207 @@
 <body>
   <h1>Malla Curricular - Ingeniería Industrial (UNNE)</h1>
   <div class="grid" id="grid"></div>
+<script>
+  const materias = {
+    1: [
+      { id: "01", nombre: "Introducción a la Ing. Industrial" },
+      { id: "02", nombre: "Matemática A" },
+      { id: "03", nombre: "Química General e Inorgánica" },
+      { id: "04", nombre: "Matemática B" },
+      { id: "05", nombre: "Inglés I" },
+      { id: "06", nombre: "Informática y Programación", requisitos: ["02"] },
+      { id: "07", nombre: "Matemática C", requisitos: ["02", "04"] },
+      { id: "08", nombre: "Sistemas de Representación" },
+      { id: "09", nombre: "Física", requisitos: ["02", "04"] }
+    ],
+    2: [
+      { id: "10", nombre: "Matemática D", requisitos: ["04", "07"] },
+      { id: "11", nombre: "Química Industrial", requisitos: ["03"] },
+      { id: "12", nombre: "Probabilidad y Estadística", requisitos: ["04", "07"] },
+      { id: "13", nombre: "Termodinámica y Máquinas Térmicas", requisitos: ["03", "09"] },
+      { id: "14", nombre: "Inglés II", requisitos: ["05"] },
+      { id: "15", nombre: "Electricidad y Magnetismo", requisitos: ["07", "09"] },
+      { id: "16", nombre: "Mecánica de los Fluidos", requisitos: ["09", "10"] },
+      { id: "17", nombre: "Microbiología Industrial", requisitos: ["11"] },
+      { id: "18", nombre: "Administración de Empresas Industriales", requisitos: ["01", "04"] },
+      { id: "19", nombre: "Mecánica y Mecanismos", requisitos: ["07", "09"] }
+    ],
+    3: [
+      { id: "20", nombre: "Estática y Resistencia de Materiales", requisitos: ["10", "11"] },
+      { id: "21", nombre: "Organización de la Producción", requisitos: ["12", "18"] },
+      { id: "22", nombre: "Máquinas Industriales", requisitos: ["13", "19"] },
+      { id: "23", nombre: "Investigación Operativa", requisitos: ["10", "12"] },
+      { id: "24", nombre: "Inglés III", requisitos: ["14"] },
+      { id: "25", nombre: "Economía Política", requisitos: ["12", "18"] },
+      { id: "26", nombre: "Procesos Industriales", requisitos: ["13", "16", "19"] },
+      { id: "27", nombre: "Ciencia de los Materiales", requisitos: ["15", "20"] },
+      { id: "28", nombre: "Electrotecnia y Máquinas Eléctricas", requisitos: ["15", "19", "20"] }
+    ],
+    4: [
+      { id: "29", nombre: "Construcción y Montajes Industriales", requisitos: ["20", "27"] },
+      { id: "30", nombre: "Ingeniería Legal", requisitos: ["25"] },
+      { id: "31", nombre: "Ingeniería Ambiental", requisitos: ["25"] },
+      { id: "32", nombre: "Industria de la Madera", requisitos: ["21", "22", "26"] },
+      { id: "33", nombre: "Industria Pecuaria", requisitos: ["21", "22", "26"] },
+      { id: "34", nombre: "Industria de Vegetales I", requisitos: ["21", "22", "26"] },
+      { id: "35", nombre: "Inglés IV", requisitos: ["24"] },
+      { id: "36", nombre: "Industria de los Vegetales II", requisitos: ["22", "26"] },
+      { id: "37", nombre: "Industria de los Vegetales III", requisitos: ["22", "26"] },
+      { id: "38", nombre: "Automatización Industrial", requisitos: ["26", "28"] }
+    ],
+    5: [
+      { id: "39", nombre: "Gestión Integral de la Calidad", requisitos: ["30", "31"] },
+      { id: "40", nombre: "Higiene y Seguridad Industrial", requisitos: ["30", "31"] },
+      { id: "41", nombre: "Formulación y Evaluación de Proyectos", requisitos: ["29", "30", "31"] },
+      { id: "42", nombre: "Prácticas Profesionales Supervisadas", requisitos: ["32", "33", "34", "36", "37", "38"] },
+      { id: "43", nombre: "Proyecto Agroindustrial", requisitos: [
+        "01","02","03","04","05","06","07","08","09","10","11","12","13","14","15",
+        "16","17","18","19","20","21","22","23","24","25","26","27","28","29","30",
+        "31","32","33","34","35","36","37","38","39","40","41","42"
+      ]}
+    ],
+    optativas: [
+      { id: "44", nombre: "Comercio Exterior", requisitos: ["25"] },
+      { id: "45", nombre: "Administración de Personal", requisitos: ["21", "25"] },
+      { id: "46", nombre: "Comercialización", requisitos: ["21"] },
+      { id: "47", nombre: "Bebidas Alcohólicas", requisitos: ["26"] },
+      { id: "48", nombre: "Biocombustibles", requisitos: ["26"] },
+      { id: "49", nombre: "Producción de alcohol", requisitos: ["26"] },
+      { id: "50", nombre: "Producción de Biodiesel", requisitos: ["30"] },
+      { id: "51", nombre: "Ingeniería en nanoprocesos", requisitos: ["26", "27"] },
+      { id: "52", nombre: "Biotecnología Industrial", requisitos: ["26", "27"] },
+      { id: "53", nombre: "Introducción al Marketing", requisitos: ["21", "25"] },
+      { id: "54", nombre: "Producción de almidón", requisitos: ["37"] },
+      { id: "55", nombre: "Aceites esenciales", requisitos: ["36"] },
+      { id: "56", nombre: "Instrumentación y Control", requisitos: ["27", "38"] },
+      { id: "57", nombre: "Sistema de mantenimiento", requisitos: ["26", "29"] },
+      { id: "58", nombre: "Envases", requisitos: ["30", "31"] },
+      { id: "59", nombre: "Bromatología", requisitos: ["26"] },
+      { id: "60", nombre: "Logística", requisitos: ["25"] }
+    ]
+  };
 
-  <script>
-    const materias = {
-      1: [
-        { id: "01", nombre: "Introducción a la Ing. Industrial" },
-        { id: "02", nombre: "Matemática A" },
-        { id: "03", nombre: "Química General e Inorgánica" },
-        { id: "04", nombre: "Matemática B" },
-        { id: "05", nombre: "Inglés I" },
-        { id: "06", nombre: "Informática y Programación", requisitos: ["02"] },
-        { id: "07", nombre: "Matemática C", requisitos: ["02", "04"] },
-        { id: "08", nombre: "Sistemas de Representación" },
-        { id: "09", nombre: "Física", requisitos: ["02", "04"] }
-      ],
-      2: [
-        { id: "10", nombre: "Matemática D", requisitos: ["04", "07"] },
-        { id: "11", nombre: "Química Industrial", requisitos: ["03"] },
-        { id: "12", nombre: "Probabilidad y Estadística", requisitos: ["04", "07"] },
-        { id: "13", nombre: "Termodinámica y Máquinas Térmicas", requisitos: ["03", "09"] },
-        { id: "14", nombre: "Inglés II", requisitos: ["05"] },
-        { id: "15", nombre: "Electricidad y Magnetismo", requisitos: ["07", "09"] },
-        { id: "16", nombre: "Mecánica de los Fluidos", requisitos: ["09", "10"] },
-        { id: "17", nombre: "Microbiología Industrial", requisitos: ["11"] },
-        { id: "18", nombre: "Administración de Empresas Industriales", requisitos: ["01", "04"] },
-        { id: "19", nombre: "Mecánica y Mecanismos", requisitos: ["07", "09"] }
-      ],
-      3: [
-        { id: "20", nombre: "Estática y Resistencia de Materiales", requisitos: ["10", "11"] },
-        { id: "21", nombre: "Organización de la Producción", requisitos: ["12", "18"] },
-        { id: "22", nombre: "Máquinas Industriales", requisitos: ["13", "19"] },
-        { id: "23", nombre: "Investigación Operativa", requisitos: ["10", "12"] },
-        { id: "24", nombre: "Inglés III", requisitos: ["14"] },
-        { id: "25", nombre: "Economía Política", requisitos: ["12", "18"] },
-        { id: "26", nombre: "Procesos Industriales", requisitos: ["13", "16", "19"] },
-        { id: "27", nombre: "Ciencia de los Materiales", requisitos: ["15", "20"] },
-        { id: "28", nombre: "Electrotecnia y Máquinas Eléctricas", requisitos: ["15", "19", "20"] }
-      ],
-      4: [
-        { id: "29", nombre: "Construcción y Montajes Industriales", requisitos: ["20", "27"] },
-        { id: "30", nombre: "Ingeniería Legal", requisitos: ["25"] },
-        { id: "31", nombre: "Ingeniería Ambiental", requisitos: ["25"] },
-        { id: "32", nombre: "Industria de la Madera", requisitos: ["21", "22", "26"] },
-        { id: "33", nombre: "Industria Pecuaria", requisitos: ["21", "22", "26"] },
-        { id: "34", nombre: "Industria de Vegetales I", requisitos: ["21", "22", "26"] },
-        { id: "35", nombre: "Inglés IV", requisitos: ["24"] },
-        { id: "36", nombre: "Industria de los Vegetales II", requisitos: ["22", "26"] },
-        { id: "37", nombre: "Industria de los Vegetales III", requisitos: ["22", "26"] },
-        { id: "38", nombre: "Automatización Industrial", requisitos: ["26", "28"] }
-      ],
-      5: [
-        { id: "39", nombre: "Gestión Integral de la Calidad", requisitos: ["30", "31"] },
-        { id: "40", nombre: "Higiene y Seguridad Industrial", requisitos: ["30", "31"] },
-        { id: "41", nombre: "Formulación y Evaluación de Proyectos", requisitos: ["29", "30", "31"] },
-        { id: "42", nombre: "Prácticas Profesionales Supervisadas", requisitos: ["32", "33", "34", "36", "37", "38"] },
-        { id: "43", nombre: "Proyecto Agroindustrial (Trabajo Final)", requisitos: [
-          "01","02","03","04","05","06","07","08","09","10","11","12","13","14","15",
-          "16","17","18","19","20","21","22","23","24","25","26","27","28","29","30",
-          "31","32","33","34","35","36","37","38","39","40","41","42"
-        ]}
-      ]
-    };
+  const aprobadas = JSON.parse(localStorage.getItem("aprobadas") || "[]");
+  function crearMalla() {
+    const grid = document.getElementById("grid");
+    grid.innerHTML = "";
 
-    const aprobadas = JSON.parse(localStorage.getItem("aprobadas") || "[]");
+    // Mostrar años 1 a 5
+    for (let año = 1; año <= 5; año++) {
+      const col = document.createElement("div");
+      col.className = "year-column";
+      const h2 = document.createElement("h2");
+      h2.textContent = `${año}° Año`;
+      col.appendChild(h2);
 
-    function crearMalla() {
-      const grid = document.getElementById("grid");
-      grid.innerHTML = "";
+      materias[año].forEach((materia) => {
+        const div = document.createElement("div");
+        div.className = "subject";
 
-      Object.entries(materias).forEach(([anio, lista]) => {
-        const col = document.createElement("div");
-        col.className = "year-column";
-        const h2 = document.createElement("h2");
-        h2.textContent = `${anio}° Año`;
-        col.appendChild(h2);
+        const check = document.createElement("input");
+        check.type = "checkbox";
+        check.checked = aprobadas.includes(materia.id);
+        check.disabled = false;
 
-        lista.forEach((materia) => {
-          const div = document.createElement("div");
-          div.className = "subject";
+        const label = document.createElement("label");
+        label.textContent = materia.nombre;
 
-          const check = document.createElement("input");
-          check.type = "checkbox";
-          check.checked = aprobadas.includes(materia.id);
-          check.disabled = false;
+        div.appendChild(check);
+        div.appendChild(label);
 
-          const label = document.createElement("label");
-          label.textContent = materia.nombre;
+        const faltantes = (materia.requisitos || []).filter(
+          (req) => !aprobadas.includes(req)
+        );
 
-          div.appendChild(check);
-          div.appendChild(label);
+        if (faltantes.length > 0) {
+          div.classList.add("locked");
+          check.disabled = true;
+          div.title = "Faltan: " + faltantes.map(id => obtenerNombre(id)).join(", ");
+        }
 
-          const faltantes = (materia.requisitos || []).filter(
-            (req) => !aprobadas.includes(req)
-          );
-          if (faltantes.length > 0) {
-            div.classList.add("locked");
-            check.disabled = true;
-            div.title = "Faltan: " + faltantes.map(id => obtenerNombre(id)).join(", ");
+        if (check.checked) {
+          div.classList.add("aprobada");
+        }
+
+        check.addEventListener("change", () => {
+          if (check.checked) {
+            aprobadas.push(materia.id);
+          } else {
+            const index = aprobadas.indexOf(materia.id);
+            if (index > -1) aprobadas.splice(index, 1);
           }
-
-          check.addEventListener("change", () => {
-            if (check.checked) {
-              aprobadas.push(materia.id);
-            } else {
-              const index = aprobadas.indexOf(materia.id);
-              if (index > -1) aprobadas.splice(index, 1);
-            }
-            localStorage.setItem("aprobadas", JSON.stringify(aprobadas));
-            crearMalla();
-          });
-
-          col.appendChild(div);
+          localStorage.setItem("aprobadas", JSON.stringify(aprobadas));
+          crearMalla();
         });
 
-        grid.appendChild(col);
+        col.appendChild(div);
       });
+
+      grid.appendChild(col);
     }
 
-    function obtenerNombre(id) {
-      for (let año in materias) {
-        const found = materias[año].find(m => m.id === id);
-        if (found) return found.nombre;
+    // Mostrar optativas
+    const opt = document.createElement("div");
+    opt.className = "optativas-column";
+    const h2 = document.createElement("h2");
+    h2.textContent = "Optativas";
+    opt.appendChild(h2);
+
+    materias.optativas.forEach((materia) => {
+      const div = document.createElement("div");
+      div.className = "subject";
+
+      const check = document.createElement("input");
+      check.type = "checkbox";
+      check.checked = aprobadas.includes(materia.id);
+      check.disabled = false;
+
+      const label = document.createElement("label");
+      label.textContent = materia.nombre;
+
+      div.appendChild(check);
+      div.appendChild(label);
+
+      const faltantes = (materia.requisitos || []).filter(
+        (req) => !aprobadas.includes(req)
+      );
+
+      if (faltantes.length > 0) {
+        div.classList.add("locked");
+        check.disabled = true;
+        div.title = "Faltan: " + faltantes.map(id => obtenerNombre(id)).join(", ");
       }
-      return id;
-    }
 
-    crearMalla();
-  </script>
+      if (check.checked) {
+        div.classList.add("aprobada");
+      }
+
+      check.addEventListener("change", () => {
+        if (check.checked) {
+          aprobadas.push(materia.id);
+        } else {
+          const index = aprobadas.indexOf(materia.id);
+          if (index > -1) aprobadas.splice(index, 1);
+        }
+        localStorage.setItem("aprobadas", JSON.stringify(aprobadas));
+        crearMalla();
+      });
+
+      opt.appendChild(div);
+    });
+
+    grid.appendChild(opt);
+  }
+
+  function obtenerNombre(id) {
+    for (let año in materias) {
+      const found = materias[año].find(m => m.id === id);
+      if (found) return found.nombre;
+    }
+    return id;
+  }
+
+  crearMalla();
+</script>
 </body>
 </html>
