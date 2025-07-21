@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Malla Curricular - Ing. Industrial UNNE</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f5f9ff;
+      margin: 0;
+      padding: 1rem;
+    }
+    h1 {
+      text-align: center;
+      color: #1f4e79;
+    }
+    .grid {
+      display: flex;
+      gap: 1rem;
+      overflow-x: auto;
+      padding: 1rem 0;
+    }
+    .year-column {
+      background: #fff;
+      border-radius: 8px;
+      padding: 1rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      min-width: 250px;
+    }
+    .year-column h2 {
+      text-align: center;
+      color: #1f4e79;
+      margin-bottom: 1rem;
+    }
+    .subject {
+      background: #eaf0f6;
+      margin: 0.5rem 0;
+      padding: 0.5rem;
+      border-radius: 6px;
+      cursor: pointer;
+      position: relative;
+      transition: 0.2s ease;
+    }
+    .subject input[type="checkbox"] {
+      margin-right: 0.5rem;
+    }
+    .subject.locked {
+      background: #f0f0f0;
+      color: #999;
+      cursor: not-allowed;
+    }
+    .subject.locked input {
+      cursor: not-allowed;
+    }
+    .subject:hover:not(.locked) {
+      background: #dce8f4;
+    }
+    .subject[title]:hover::after {
+      content: attr(title);
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: #333;
+      color: #fff;
+      padding: 4px 8px;
+      border-radius: 4px;
+      white-space: pre-wrap;
+      z-index: 10;
+      font-size: 0.8em;
+    }
+  </style>
+</head>
+<body>
+  <h1>Malla Curricular - Ingeniería Industrial (UNNE)</h1>
+  <div class="grid" id="grid"></div>
+
+  <script>
+    const materias = {
+      1: [
+        { id: "01", nombre: "Introducción a la Ing. Industrial" },
+        { id: "02", nombre: "Matemática A" },
+        { id: "03", nombre: "Química General e Inorgánica" },
+        { id: "04", nombre: "Matemática B" },
+        { id: "05", nombre: "Inglés I" },
+        { id: "06", nombre: "Informática y Programación", requisitos: ["02"] },
+        { id: "07", nombre: "Matemática C", requisitos: ["02", "04"] },
+        { id: "08", nombre: "Sistemas de Representación" },
+        { id: "09", nombre: "Física", requisitos: ["02", "04"] }
+      ],
+      2: [
+        { id: "10", nombre: "Matemática D", requisitos: ["04", "07"] },
+        { id: "11", nombre: "Química Industrial", requisitos: ["03"] },
+        { id: "12", nombre: "Probabilidad y Estadística", requisitos: ["04", "07"] },
+        { id: "13", nombre: "Termodinámica y Máquinas Térmicas", requisitos: ["03", "09"] },
+        { id: "14", nombre: "Inglés II", requisitos: ["05"] },
+        { id: "15", nombre: "Electricidad y Magnetismo", requisitos: ["07", "09"] },
+        { id: "16", nombre: "Mecánica de los Fluidos", requisitos: ["09", "10"] },
+        { id: "17", nombre: "Microbiología Industrial", requisitos: ["11"] },
+        { id: "18", nombre: "Administración de Empresas Industriales", requisitos: ["01", "04"] },
+        { id: "19", nombre: "Mecánica y Mecanismos", requisitos: ["07", "09"] }
+      ]
+    };
+
+    const aprobadas = JSON.parse(localStorage.getItem("aprobadas") || "[]");
+
+    function crearMalla() {
+      const grid = document.getElementById("grid");
+      grid.innerHTML = "";
+
+      Object.entries(materias).forEach(([anio, lista]) => {
+        const col = document.createElement("div");
+        col.className = "year-column";
+        const h2 = document.createElement("h2");
+        h2.textContent = `${anio}° Año`;
+        col.appendChild(h2);
+
+        lista.forEach((materia) => {
+          const div = document.createElement("div");
+          div.className = "subject";
+
+          const check = document.createElement("input");
+          check.type = "checkbox";
+          check.checked = aprobadas.includes(materia.id);
+          check.disabled = false;
+
+          const label = document.createElement("label");
+          label.textContent = materia.nombre;
+
+          div.appendChild(check);
+          div.appendChild(label);
