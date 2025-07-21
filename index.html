@@ -6,33 +6,40 @@
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background-color: #f7fbff;
+      background-color: #f0faff;
       margin: 0;
       padding: 1rem;
     }
+
     h1 {
       text-align: center;
-      color: #003366;
+      color: #1e3f66;
     }
+
     .grid {
       display: flex;
       gap: 1rem;
       overflow-x: auto;
       padding: 1rem 0;
     }
+
     .year-column {
       background: #ffffff;
-      border-radius: 8px;
+      border-radius: 10px;
       padding: 1rem;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
       min-width: 260px;
+      border-top: 4px solid #ffd54f;
     }
+
     .year-column h2 {
       text-align: center;
-      color: #004080;
+      color: #1e3f66;
+      margin-bottom: 1rem;
     }
+
     .subject {
-      background: #e2ecf8;
+      background: #e1f5fe;
       margin: 0.5rem 0;
       padding: 0.6rem;
       border-radius: 6px;
@@ -40,21 +47,28 @@
       position: relative;
       transition: 0.2s ease;
       font-size: 0.95em;
+      border-left: 6px solid #4fc3f7;
     }
+
     .subject input[type="checkbox"] {
       margin-right: 0.5rem;
     }
+
     .subject.locked {
-      background: #eeeeee;
-      color: #999999;
+      background: #f9f9f9;
+      color: #aaa;
       cursor: not-allowed;
+      border-left: 6px solid #ccc;
     }
+
     .subject.locked input {
       cursor: not-allowed;
     }
+
     .subject:hover:not(.locked) {
-      background: #d0e4f7;
+      background: #b3e5fc;
     }
+
     .subject[title]:hover::after {
       content: attr(title);
       position: absolute;
@@ -127,7 +141,11 @@
         { id: "40", nombre: "Higiene y Seguridad Industrial", requisitos: ["30", "31"] },
         { id: "41", nombre: "Formulación y Evaluación de Proyectos", requisitos: ["29", "30", "31"] },
         { id: "42", nombre: "Prácticas Profesionales Supervisadas", requisitos: ["32", "33", "34", "36", "37", "38"] },
-        { id: "43", nombre: "Proyecto Agroindustrial (Trabajo Final)", requisitos: ["01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42"] }
+        { id: "43", nombre: "Proyecto Agroindustrial (Trabajo Final)", requisitos: [
+          "01","02","03","04","05","06","07","08","09","10","11","12","13","14","15",
+          "16","17","18","19","20","21","22","23","24","25","26","27","28","29","30",
+          "31","32","33","34","35","36","37","38","39","40","41","42"
+        ]}
       ]
     };
 
